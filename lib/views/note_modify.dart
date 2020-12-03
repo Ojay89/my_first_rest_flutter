@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_first_rest_flutter/models/note.dart';
 import 'package:my_first_rest_flutter/models/note_insert.dart';
 import 'package:my_first_rest_flutter/services/notes_service.dart';
+import 'package:provider/provider.dart';
 
 class NoteModify extends StatefulWidget {
   final String noteID;
@@ -64,14 +66,24 @@ class _NoteModifyState extends State<NoteModify> {
             ? Center(child: CircularProgressIndicator())
             : Column(
                 children: <Widget>[
-                  TextField(
-                    controller: _titleController,
-                    decoration: InputDecoration(hintText: "Titel til Note"),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                    child: TextField(
+                      controller: _titleController,
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(hintText: "Titel til Note"),
+                    ),
                   ),
-                  Container(height: 8),
+                  Container(
+                    height: 8,
+                  ),
                   TextField(
+                    maxLines: 7,
                     controller: _contentController,
-                    decoration: InputDecoration(hintText: "Skriv din note"),
+                    decoration: InputDecoration(
+                        hintText: "Skriv din note",
+                        border: OutlineInputBorder()),
                   ),
                   Container(height: 16),
                   SizedBox(
@@ -83,12 +95,46 @@ class _NoteModifyState extends State<NoteModify> {
                       color: Theme.of(context).primaryColor,
                       onPressed: () async {
                         if (isEditing) {
-                          //Update note
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          final note = NoteManipulation(
+                              noteTitle: _titleController.text,
+                              noteContent: _contentController.text);
+                          final result = await notesService.updateNote(
+                              widget.noteID, note);
+
+                          setState(() {
+                            _isLoading = false;
+                          });
+
+                          final title = "Gennemført";
+                          final text = result.error
+                              ? (result.errorMessage ?? 'Fejl opstået')
+                              : 'Note opdateret';
+                          showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                    title: Text(title),
+                                    content: Text(text),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        child: Text('Ok'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      )
+                                    ],
+                                  )).then((data) {
+                            if (result.data) {
+                              Navigator.of(context).pop();
+                            }
+                          });
                         } else {
                           setState(() {
                             _isLoading = true;
                           });
-                          final note = NoteInsert(
+                          final note = NoteManipulation(
                               noteTitle: _titleController.text,
                               noteContent: _contentController.text);
                           final result = await notesService.createNote(note);
@@ -114,8 +160,7 @@ class _NoteModifyState extends State<NoteModify> {
                                         },
                                       )
                                     ],
-                                  ))
-                              .then((data) {
+                                  )).then((data) {
                             if (result.data) {
                               Navigator.of(context).pop();
                             }

@@ -43,18 +43,41 @@ class NotesService {
         (_) => APIResponse<Note>(error: true, errorMessage: "Fejl opstået"));
   }
 
-  Future<APIResponse<bool>> createNote(NoteInsert item) {
+  Future<APIResponse<bool>> createNote(NoteManipulation item) {
     return http
         .post(API + "/notes",
             headers: headers, body: json.encode(item.toJson()))
         .then((data) {
       if (data.statusCode == 201) {
         //jsonData viser json på en liste
-
         return APIResponse<bool>(data: true);
       }
       return APIResponse<bool>(error: true, errorMessage: "Fejl opstået");
     }).catchError((_) =>
             APIResponse<bool>(error: true, errorMessage: "Fejl opstået"));
   }
+
+  Future<APIResponse<bool>> updateNote(String noteID, NoteManipulation item) {
+    return http.put(API + "/notes/" + noteID, headers: headers, body: json.encode(item.toJson()))
+        .then((data) {
+      if (data.statusCode == 204) {
+        //jsonData viser json på en liste
+        return APIResponse<bool>(data: true);
+      }
+      return APIResponse<bool>(error: true, errorMessage: "Fejl opstået");
+    }).catchError((_) =>
+        APIResponse<bool>(error: true, errorMessage: "Fejl opstået"));
+  }
+
+  Future<APIResponse<bool>> deleteNote(String noteID) {
+    return http.delete(API + "/notes/" + noteID, headers: headers).then((data) {
+      if (data.statusCode == 204) {
+        //jsonData viser json på en liste
+        return APIResponse<bool>(data: true);
+      }
+      return APIResponse<bool>(error: true, errorMessage: "Fejl opstået");
+    }).catchError((_) =>
+        APIResponse<bool>(error: true, errorMessage: "Fejl opstået"));
+  }
+
 }

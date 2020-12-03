@@ -43,18 +43,23 @@ class _NoteListState extends State<NoteList> {
 
   @override
   Widget build(BuildContext context) {
+    //listener til ThemeChange
     ThemeChanger _themeChanger = Provider.of<ThemeChanger>(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Mine Noter"),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.wb_sunny), onPressed: () {
-            _themeChanger.setTheme(ThemeData.light());
-          }),
-          IconButton(icon: Icon(Icons.wb_sunny_outlined), onPressed: () {
-            _themeChanger.setTheme(ThemeData.dark());
-          }),
+          IconButton(
+              icon: Icon(Icons.wb_sunny),
+              onPressed: () {
+                _themeChanger.setTheme(ThemeData.light());
+              }),
+          IconButton(
+              icon: Icon(Icons.wb_sunny_outlined),
+              onPressed: () {
+                _themeChanger.setTheme(ThemeData.dark());
+              }),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -79,8 +84,7 @@ class _NoteListState extends State<NoteList> {
           }
 
           return ListView.separated(
-            separatorBuilder: (_, __) =>
-                Divider(height: 1, color: Colors.blue),
+            separatorBuilder: (_, __) => Divider(height: 1, color: Colors.blue),
             itemBuilder: (_, index) {
               //listens design
               return Dismissible(
@@ -92,9 +96,34 @@ class _NoteListState extends State<NoteList> {
                       context: context,
                       //_ er Dart funktion - (_) er en variable når builder ikke skal bruge en paramter
                       builder: (_) => NoteDelete());
+                  if (result) {
+                    final deleteResult = await service
+                        .deleteNote(_apiResponse.data[index].noteID);
+                    var message;
+                    if (deleteResult != null && deleteResult.data == true) {
+                      message = "Noten er slettet";
+                    } else {
+                      //hvis fejl opstår vis errormessage fra result. Hvis besked er null skriv "Fejl opstået"
+                      // Hvis ikke skriv message (noten er slettet)
+                      message = deleteResult?.errorMessage ?? "Fejl opstået ";
+                    }
+                    showDialog(
+                        context: context, builder: (_) => AlertDialog(
+                      title: Text('Gennemført'),
+                      content: Text(message),
+                      actions: <Widget>[
+                        FlatButton(child: Text('Ok'), onPressed: () {
+                          Navigator.of(context).pop();
+                        })
+                      ],
+                    ));
+
+                    return deleteResult?.data ?? false;
+                  }
                   print(result);
                   return result;
                 },
+
                 background: Container(
                   color: Colors.red,
                   padding: EdgeInsets.only(left: 16),
@@ -106,14 +135,18 @@ class _NoteListState extends State<NoteList> {
                 child: ListTile(
                   title: Text(
                     _apiResponse.data[index].noteTitle,
-                   // style: TextStyle(color: Theme.of(context).primaryColor),
+                    // style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                   subtitle: Text(
                       "Senest opdateret den ${formatDateTime(_apiResponse.data[index].latestEditDateTime ?? _apiResponse.data[index].createDateTime)}"),
                   onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => NoteModify(
-                            noteID: _apiResponse.data[index].noteID)));
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(
+                            builder: (_) => NoteModify(
+                                noteID: _apiResponse.data[index].noteID)))
+                        .then((data) {
+                      _fetchNotes();
+                    });
                   },
                 ),
               );

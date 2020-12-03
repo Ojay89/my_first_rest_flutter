@@ -6,7 +6,7 @@ class NoteDelete extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
         title: Text("Advarsel"),
-        content: Text("Er du sikker på at du vil slette?"),
+        content: Text("Er du sikker på at du vil slette noten?"),
         actions: <Widget>[
           FlatButton(
             child: Text("Ja"),

@@ -11,6 +11,7 @@ class ThemeChanger with ChangeNotifier {
   setTheme(ThemeData theme) async{
     _themeData = theme;
 
+    //underretter ændringer
     notifyListeners();
   }
 }
