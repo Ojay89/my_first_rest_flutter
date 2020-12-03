@@ -4,9 +4,14 @@ import 'package:my_first_rest_flutter/models/api_response.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:my_first_rest_flutter/models/note_insert.dart';
+
 class NotesService {
   static const API = "https://tq-notes-api-jkrgrdggbq-el.a.run.app";
-  static const headers = {"apiKey": "0a8fe217-3938-4591-b882-c95482744bdf"};
+  static const headers = {
+    'apiKey': '0a8fe217-3938-4591-b882-c95482744bdf',
+    'Content-Type': 'application/json'
+  };
 
   Future<APIResponse<List<NoteForListing>>> getNotesList() {
     return http.get(API + "/notes", headers: headers).then((data) {
@@ -19,9 +24,9 @@ class NotesService {
         }
         return APIResponse<List<NoteForListing>>(data: notes);
       }
-      return APIResponse<List<NoteForListing>>(error: true, errorMessage: "Fejl opstået");
-    })
-        .catchError((_) => APIResponse<List<NoteForListing>>(
+      return APIResponse<List<NoteForListing>>(
+          error: true, errorMessage: "Fejl opstået");
+    }).catchError((_) => APIResponse<List<NoteForListing>>(
         error: true, errorMessage: "Fejl opstået"));
   }
 
@@ -36,5 +41,20 @@ class NotesService {
       return APIResponse<Note>(error: true, errorMessage: "Fejl opstået");
     }).catchError(
         (_) => APIResponse<Note>(error: true, errorMessage: "Fejl opstået"));
+  }
+
+  Future<APIResponse<bool>> createNote(NoteInsert item) {
+    return http
+        .post(API + "/notes",
+            headers: headers, body: json.encode(item.toJson()))
+        .then((data) {
+      if (data.statusCode == 201) {
+        //jsonData viser json på en liste
+
+        return APIResponse<bool>(data: true);
+      }
+      return APIResponse<bool>(error: true, errorMessage: "Fejl opstået");
+    }).catchError((_) =>
+            APIResponse<bool>(error: true, errorMessage: "Fejl opstået"));
   }
 }
