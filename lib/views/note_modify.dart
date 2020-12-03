@@ -58,6 +58,7 @@ class _NoteModifyState extends State<NoteModify> {
       appBar: AppBar(title: Text(isEditing ? "Rediger Note" : "Opret Note")),
       body: Padding(
         padding: const EdgeInsets.all(12),
+
         //Hvis loading så vis progressindicator eller vis Column
         child: _isLoading
             ? Center(child: CircularProgressIndicator())

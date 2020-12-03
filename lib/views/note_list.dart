@@ -5,6 +5,8 @@ import 'package:my_first_rest_flutter/models/note_for_listing.dart';
 import 'package:my_first_rest_flutter/services/notes_service.dart';
 import 'package:my_first_rest_flutter/views/note_modify.dart';
 import 'note_delete.dart';
+import 'package:provider/provider.dart';
+import 'package:my_first_rest_flutter/services/theme.dart';
 
 class NoteList extends StatefulWidget {
   @override
@@ -22,12 +24,13 @@ class _NoteListState extends State<NoteList> {
     _fetchNotes();
     super.initState();
   }
-  _fetchNotes () async {
+
+  _fetchNotes() async {
     setState(() {
       _isLoading = true;
     });
 
-    _apiResponse= await service.getNotesList();
+    _apiResponse = await service.getNotesList();
 
     setState(() {
       _isLoading = false;
@@ -40,22 +43,34 @@ class _NoteListState extends State<NoteList> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeChanger _themeChanger = Provider.of<ThemeChanger>(context);
+
     return Scaffold(
-      appBar: AppBar(title: Text("Mine Noter")),
+      appBar: AppBar(
+        title: Text("Mine Noter"),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.wb_sunny), onPressed: () {
+            _themeChanger.setTheme(ThemeData.light());
+          }),
+          IconButton(icon: Icon(Icons.wb_sunny_outlined), onPressed: () {
+            _themeChanger.setTheme(ThemeData.dark());
+          }),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).accentColor,
         onPressed: () {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (_) => NoteModify()))
               .then((_) {
             _fetchNotes();
           });
-
-          },
+        },
         child: Icon(Icons.add),
       ),
       body: Builder(
-        builder:(_) {
-          if(_isLoading) {
+        builder: (_) {
+          if (_isLoading) {
             return Center(child: CircularProgressIndicator());
           }
 
@@ -64,7 +79,8 @@ class _NoteListState extends State<NoteList> {
           }
 
           return ListView.separated(
-            separatorBuilder: (_, __) => Divider(height: 1, color: Colors.green),
+            separatorBuilder: (_, __) =>
+                Divider(height: 1, color: Colors.blue),
             itemBuilder: (_, index) {
               //listens design
               return Dismissible(
@@ -75,30 +91,29 @@ class _NoteListState extends State<NoteList> {
                   final result = await showDialog(
                       context: context,
                       //_ er Dart funktion - (_) er en variable når builder ikke skal bruge en paramter
-                      builder: (_) => NoteDelete()
-                  );
+                      builder: (_) => NoteDelete());
                   print(result);
                   return result;
                 },
                 background: Container(
                   color: Colors.red,
                   padding: EdgeInsets.only(left: 16),
-                  child: Align(child: Icon(Icons.delete, color: Colors.white),
-                    alignment: Alignment.centerLeft,),
+                  child: Align(
+                    child: Icon(Icons.delete, color: Colors.white),
+                    alignment: Alignment.centerLeft,
+                  ),
                 ),
                 child: ListTile(
                   title: Text(
                     _apiResponse.data[index].noteTitle,
-                    style: TextStyle(color: Theme
-                        .of(context)
-                        .primaryColor),
+                   // style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                   subtitle: Text(
-                      "Senest opdateret den ${formatDateTime(
-                          _apiResponse.data[index].latestEditDateTime ?? _apiResponse.data[index].createDateTime)}"),
+                      "Senest opdateret den ${formatDateTime(_apiResponse.data[index].latestEditDateTime ?? _apiResponse.data[index].createDateTime)}"),
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => NoteModify(noteID: _apiResponse.data[index].noteID)));
+                        builder: (_) => NoteModify(
+                            noteID: _apiResponse.data[index].noteID)));
                   },
                 ),
               );
