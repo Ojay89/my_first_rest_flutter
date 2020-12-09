@@ -11,6 +11,7 @@ class NoteForListing {
       this.createDateTime,
       this.latestEditDateTime});
 
+  //deserialize Json // Map a la recyclerview returnere key og value. String bruges om key, dynamic bruges som value, da value kan være hvilken som helst type. //
   factory NoteForListing.fromJson(Map<String, dynamic> item) {
     return NoteForListing(
       noteID: item["noteID"],

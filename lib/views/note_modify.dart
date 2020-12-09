@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_first_rest_flutter/models/note.dart';
-import 'package:my_first_rest_flutter/models/note_insert.dart';
+import 'package:my_first_rest_flutter/models/note_manipulation.dart';
 import 'package:my_first_rest_flutter/services/notes_service.dart';
 import 'package:provider/provider.dart';
 
@@ -84,6 +84,7 @@ class _NoteModifyState extends State<NoteModify> {
                     decoration: InputDecoration(
                         hintText: "Skriv din note",
                         border: OutlineInputBorder()),
+
                   ),
                   Container(height: 16),
                   SizedBox(
@@ -101,8 +102,7 @@ class _NoteModifyState extends State<NoteModify> {
                           final note = NoteManipulation(
                               noteTitle: _titleController.text,
                               noteContent: _contentController.text);
-                          final result = await notesService.updateNote(
-                              widget.noteID, note);
+                          final result = await notesService.updateNote(widget.noteID, note);
 
                           setState(() {
                             _isLoading = false;

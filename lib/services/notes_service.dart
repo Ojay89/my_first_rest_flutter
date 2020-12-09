@@ -4,7 +4,7 @@ import 'package:my_first_rest_flutter/models/api_response.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:my_first_rest_flutter/models/note_insert.dart';
+import 'package:my_first_rest_flutter/models/note_manipulation.dart';
 
 class NotesService {
   static const API = "https://tq-notes-api-jkrgrdggbq-el.a.run.app";
