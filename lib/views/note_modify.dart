@@ -57,10 +57,42 @@ class _NoteModifyState extends State<NoteModify> {
   Widget build(BuildContext context) {
     return Scaffold(
       //Genrbug Hvis isEditing så skriv Rediger Note eller Opret Note
-      appBar: AppBar(title: Text(isEditing ? "Rediger Note" : "Opret Note")),
+      appBar: AppBar(title: Text(isEditing ? "Rediger Note" : "Opret Note"),
+          actions: <Widget>[
+          IconButton(
+          icon: Icon(Icons.save_rounded),
+        onPressed: () async {
+            if(isEditing) {
+              setState(() {
+                _isLoading = true;
+              });
+              final note = NoteManipulation(noteTitle: _titleController.text, noteContent: _contentController.text);
+              final result = await notesService.updateNote(widget.noteID, note);
+              setState(() {
+                _isLoading = false;
+              });
+              final title = "Gennemført";
+              final text = result.error? (result.errorMessage ?? "Fejl opstået"): "Note opdateret";
+              showDialog(context: context,
+              builder: (_) => AlertDialog (
+                title: Text(title),
+                content: Text(text),
+                actions: <Widget> [
+                  FlatButton(
+                    child: Text ("OK"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+              );
+            };
+        }),
+          ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-
         //Hvis loading så vis progressindicator eller vis Column
         child: _isLoading
             ? Center(child: CircularProgressIndicator())
@@ -76,17 +108,17 @@ class _NoteModifyState extends State<NoteModify> {
                     ),
                   ),
                   Container(
-                    height: 8,
+                    height: 12,
                   ),
                   TextField(
-                    maxLines: 7,
+                    maxLines: 12,
                     controller: _contentController,
                     decoration: InputDecoration(
                         hintText: "Skriv din note",
                         border: OutlineInputBorder()),
 
                   ),
-                  Container(height: 16),
+                 /* Container(height: 16),
                   SizedBox(
                     width: double.infinity,
                     height: 55,
@@ -168,7 +200,7 @@ class _NoteModifyState extends State<NoteModify> {
                         }
                       },
                     ),
-                  )
+                  ) */
                 ],
               ),
       ),

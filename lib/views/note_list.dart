@@ -47,8 +47,7 @@ class _NoteListState extends State<NoteList> {
     ThemeChanger _themeChanger = Provider.of<ThemeChanger>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Mine Noter"),
+      appBar: AppBar(title: Text("Mine Noter"),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.wb_sunny),
